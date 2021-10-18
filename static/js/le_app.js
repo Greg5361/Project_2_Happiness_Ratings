@@ -5,17 +5,17 @@ var regions_set = [];
 var countries_non_unique = [];
 var regions_non_unique = [];
 var countries_to_be_shown = [];
-var ratings_to_be_shown = [];
+var lifexpectancy_to_be_shown = [];
 var jsonData;
 var regionSelectField = d3.select("#region");
-var bubbleChartDiv = document.getElementById('bubble');
+var barChartDiv = document.getElementById('bar');
 var map;
 var info;
 
 //Get the Data From API
 function getDataFromApi(){
   jsonData = [];
-  fetch('/api/data')
+  fetch('/api/ledata')
     .then(response => response.json())
     .then(data => {
         console.log(data);
@@ -44,21 +44,21 @@ function setupIntialData(){
         regionSelectField.append("option").text(region)
       });
       console.log(countries_to_be_shown);
-      console.log(ratings_to_be_shown);
-      resetBubbleChart(regions_set[0]);
+      console.log(lifexpectancy_to_be_shown);
+      resetBarChart(regions_set[0]);
 }
 
 
-//Reset Bubble chart for the selected Region
-function resetBubbleChart(regionName){
-  d3.select("bubble").html("");
+//Reset Bar chart for the selected Region
+function resetBarChart(regionName){
+  d3.select("bar").html("");
   countries_to_be_shown = [];
-  ratings_to_be_shown = [];
+  lifexpectancy_to_be_shown = [];
   //main_json_data.forEach(function(obj) {
   jsonData.forEach(function(obj) {
    if (obj.Region == regionName){
       countries_to_be_shown.push(obj.Country);
-      ratings_to_be_shown.push(obj.Rating);
+      lifexpectancy_to_be_shown.push(obj.lifeexpectancy);
    }
   });
   var countries = ["Germany", "Netherlands", "France", "United Kingdom", 
@@ -70,14 +70,15 @@ function resetBubbleChart(regionName){
                "1", "5", "2", "5", "3", "1", "1", "1", "1", "4", "5", "1"];
   var trace = {
                         x: countries_to_be_shown,
-                        y: ratings_to_be_shown,
+                        y: lifexpectancy_to_be_shown,
                         mode: 'markers',
+                        type: 'scatter',
                         marker: {
-                            size: ratings_to_be_shown.map(d => 25 + d / 2.5),
+                            size: lifexpectancy_to_be_shown.map(d => 25 + d / 2.5),
                             color: [100, 10, 36, 191, 356, 17, 8, 1, 6, 6, 18, 1, 24, 8, 1, 1, 5, 2, 5, 3, 1, 1, 1, 1, 4, 5, 1],
                             colorscale: 'Rainbow'
                         },
-                        text: countries_to_be_shown
+                        text: lifexpectancy_to_be_shown
                     };
   var trace1 = {
   x: [1, 2, 3, 4],
@@ -93,10 +94,10 @@ function resetBubbleChart(regionName){
   var data = [trace];
 
   var layout = {
-  title: 'Happiness Ratings',
+  title: 'Life Expectancy',
   showlegend: false,
   yaxis:{
-    title:"Happiness Ratings"
+    title:"Life Expectancy"
   },
   margin: {
                             'l': 100,
@@ -106,8 +107,8 @@ function resetBubbleChart(regionName){
         }
   };
 
-  Plotly.newPlot('bubble', data, layout);
-  bubbleChartDiv.on('plotly_click', function (data) {
+  Plotly.newPlot('bar', data, layout);
+  barChartDiv.on('plotly_click', function (data) {
                         data.points.forEach(function (pt) {
                           resetGaugeChartFor(pt.x, pt.y);
                           return;
@@ -116,7 +117,7 @@ function resetBubbleChart(regionName){
   
   document.getElementById('chartHeaderLabel').innerText = regionName;
 
-  resetGaugeChartFor(countries_to_be_shown[0], ratings_to_be_shown[0]);
+  resetGaugeChartFor(countries_to_be_shown[0], lifexpectancy_to_be_shown[0]);
 
 }
 
@@ -145,7 +146,7 @@ function resetGaugeChartFor(country, rating){
                     ];
   var layout = {
                         title: {
-                            text: `Happiness Rating for <br>${country}`,
+                            text: `Life Expectancy for <br>${country}`,
                             font: {
                                 family: 'Courier New, monospace',
                                 size: 21,
@@ -157,7 +158,7 @@ function resetGaugeChartFor(country, rating){
 
   Plotly.newPlot('gauge', data, layout);
   resetMapForTheReqion(regions_set[0], countries_set[0]);
-  //Handler for Bubble click in the bubble chart
+  //Handler for Bar click in the bar chart
   
 }
 
@@ -167,7 +168,7 @@ regionSelectField.on("change", change)
 function change() {
     this.options[this.selectedIndex].value
     console.log(this.options[this.selectedIndex].value)
-    resetBubbleChart(this.options[this.selectedIndex].value);
+    resetBarChart(this.options[this.selectedIndex].value);
 }
 
 
@@ -207,10 +208,6 @@ function resetMapForTheReqion(region, country){
         fillOpacity: 0.4,
         weight: 1.5,
     };
-    var medalIcon = L.icon({
-                            iconUrl: 'https://upload.wikimedia.org/wikipedia/en/thumb/e/ed/Nobel_Prize.png/440px-Nobel_Prize.png',
-                            iconSize: [35, 35], // size of the icon
-                        });
     fetch(link)
     .then(response => response.json())
     .then(data => {
@@ -243,7 +240,7 @@ function setupMapData(data){
           }
           
           if (feature.properties["ADMIN"] == countryToBeChecked){
-              feature.properties["rating"] = ratings_to_be_shown[index];
+              feature.properties["rating"] = lifexpectancy_to_be_shown[index];
               dataToBeShown.push(feature)
           }
       });
@@ -266,7 +263,12 @@ function setupMapData(data){
                 style: style,
                 onEachFeature: onEachFeature
             }).addTo(map);
-    map.fitBounds(geojson.getBounds());
+    var countryGeoJson = L.geojson(dataToBeShown[0], {
+                style: style,
+                onEachFeature: onEachFeature
+            })
+    //map.fitBounds(geojson.getBounds());
+    map.fitBounds(dataToBeShown[0].geometry.getBounds());
     //marker = L.marker([43.64701, -79.39425], { icon: medalIcon });
     info = L.control();
 
@@ -278,7 +280,7 @@ function setupMapData(data){
 
 // method that we will use to update the control based on feature properties passed
     info.update = function (props) {
-        this._div.innerHTML = '<h4>Happiness Rating</h4>' +  (props ?
+        this._div.innerHTML = '<h4>Life Expectancy</h4>' +  (props ?
             '<b>' + props.ADMIN + '</b><br />' + props.rating 
             : 'Hover over a country');
     };
@@ -290,7 +292,7 @@ function setupMapData(data){
     legend.onAdd = function (map) {
 
         var div = L.DomUtil.create('div', 'info legend'),
-            grades = [0.000, 1.000, 2.000, 3.000, 4.000, 5.000, 6.000, 7.000],
+            grades = [0.000, 30.00, 40.00, 50.00, 60.00, 70.00, 80.00, 90.00],
             labels = [];
 
         // loop through our density intervals and generate a label with a colored square for each interval
@@ -317,13 +319,13 @@ function onEachFeature(feature, layer) {
                         }
 }
 function getColor(d) {
-    return d > 7.000 ? '#800026' :
-           d > 6.000  ? '#BD0026' :
-           d > 5.000  ? '#E31A1C' :
-           d > 4.000  ? '#FC4E2A' :
-           d > 3.000   ? '#FD8D3C' :
-           d > 2.000   ? '#FEB24C' :
-           d > 1.000   ? '#FED976' :
+    return d > 90.00 ? '#800026' :
+           d > 80.00  ? '#BD0026' :
+           d > 70.00  ? '#E31A1C' :
+           d > 60.00  ? '#FC4E2A' :
+           d > 50.00   ? '#FD8D3C' :
+           d > 40.00   ? '#FEB24C' :
+           d > 30.00   ? '#FED976' :
                       '#FFEDA0';
 }
 
