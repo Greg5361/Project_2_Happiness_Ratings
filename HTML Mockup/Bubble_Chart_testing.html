@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+<script src='https://cdn.plot.ly/plotly-2.4.2.min.js'></script>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-F3w7mX95PdgyTmZZMECAngseQB83DfGTowi0iMjiWaeVhAn4FJkqJByhZMI3AhiU" crossorigin="anonymous">
+        <!-- Leaflet JS & CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.6.0/dist/leaflet.css"
+    integrity="sha512-xwE/Az9zrjBIphAcBb3F6JVqxf46+CDLwfLMHloNu6KEQCAWi6HcDUbeOfBIptF7tcCzusKFjFw2yuvEpDL9wQ=="
+    crossorigin=""/>
+    <script src="https://unpkg.com/leaflet@1.6.0/dist/leaflet.js"
+    integrity="sha512-gZwIG9x3wUXg2hdXF6+rVkLF/0Vi9U8D2Ntg4Ga5I5BZpVkVxlJWbSQtXPSiUTtC0TjtGOmxa1AJPuV0CPthew=="
+    crossorigin=""></script>
+
+    <!-- Load Esri Leaflet from CDN -->
+    <script src="https://unpkg.com/esri-leaflet@2.3.3/dist/esri-leaflet.js"
+    integrity="sha512-cMQ5e58BDuu1pr9BQ/eGRn6HaR6Olh0ofcHFWe5XesdCITVuSBiBZZbhCijBe5ya238f/zMMRYIMIIg1jxv4sQ=="
+    crossorigin=""></script>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+	<nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <div class="container-fluid">
+          <a class="navbar-brand bg-info p-2 rounded text-white fw-bold fs-4" href="#">Happiness Ratings</a>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+          </button>
+          <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+                <li class="nav-item dropdown">
+                    <a class="nav-link active dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                      Bubble
+                    </a>
+                    <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                      <li><a class="dropdown-item" href="Bubble_Chart_testing.html">Bubble</a></li>
+                      <li><a class="dropdown-item" href="Bubble_Chart_testing.html">Gauge</a></li>
+                      <li><a class="dropdown-item" href="Bubble_Chart_testing.html">Bubble</a></li>
+                      <li><a class="dropdown-item" href="Bubble_Chart_testing.html">Gauge</a></li>
+                    </ul>
+                  </li>   <li class="nav-item">
+                <a class="nav-link active" aria-current="page" href="Bubble_Chart_testing.html">Bubble</a>
+              </li>
+                  </li>   <li class="nav-item">
+                <a class="nav-link active" aria-current="page" href="Bubble_Chart_testing.html">Gauge</a>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </nav>
+       <div class="container-fluid myContainer-fluid">
+        <form>
+                  <div class="form-group">
+                    <ul class="list-group" id="filters">
+                      <li class="filter list-group-item">
+                        
+                        <!--<input class="form-control" id="datetime" type="text" placeholder="D/M/YYYY">
+                        <input class="form-control" id="city" type="text" placeholder="">-->
+                        <label for="region">Select a Region</label>
+                        <select id = "region">
+                        </select>
+                      </li>
+                    </ul>
+                  </div>
+                </form>
+        <div class="row myRow row-grid top-buffer">
+            <div class="col-md-12 me-12 myContainer">
+                <h3>World Happiness bubble chart</h3>
+                <hr>
+	            <div class="row">
+			        <!-- bubble plot -->
+			        <div class="col-sm-12 col-md-12 col-lg-12">
+			          <div id="bubble"></div>
+			        </div>
+	        
+			        <!-- gauge plot -->
+			        <div class="col-sm-12 col-md-5 col-lg-5">
+			          <div id="gauge"></div>
+			        </div>
+
+			        <!-- map div -->
+			        <div class="col-sm-12 col-md-12 col-lg-7">
+			          <p class="mapTitle"></p>
+			          <div id="map"></div>
+			       </div>
+	      		</div>
+            </div>
+            
+        </div>
+
+    </div>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-/bQdsTh/da6pkI1MST/rWKFNjaCP5gBSY4sEBT38Q/9RBh9AH40zEOg7Hlq2THRZ" crossorigin="anonymous"></script>
+<script src="https://d3js.org/d3.v5.min.js"></script>
+
+<script>
+var countries_to_be_shown = [];
+var ratings_to_be_shown = [];
+const API_KEY =
+    'pk.eyJ1IjoiaGFiaWRpIiwiYSI6ImNrdTYzaWloYjJ5Y2syb3RoMHQ4cHFiN3UifQ.8Ofz9Gqmu-PdG8s5PlqydA';
+var json_data = [{"Country":"Finland","Region":"Western Europe","Rating":7.842},{"Country":"Denmark","Region":"Western Europe","Rating":7.62},{"Country":"Switzerland","Region":"Western Europe","Rating":7.571},{"Country":"Iceland","Region":"Western Europe","Rating":7.554},{"Country":"Netherlands","Region":"Western Europe","Rating":7.464},{"Country":"Norway","Region":"Western Europe","Rating":7.392},{"Country":"Sweden","Region":"Western Europe","Rating":7.363},{"Country":"Luxembourg","Region":"Western Europe","Rating":7.324},{"Country":"New Zealand","Region":"North America and ANZ","Rating":7.277},{"Country":"Austria","Region":"Western Europe","Rating":7.268},{"Country":"Australia","Region":"North America and ANZ","Rating":7.183},{"Country":"Israel","Region":"Middle East and North Africa","Rating":7.157},{"Country":"Germany","Region":"Western Europe","Rating":7.155},{"Country":"Canada","Region":"North America and ANZ","Rating":7.103},{"Country":"Ireland","Region":"Western Europe","Rating":7.085},{"Country":"Costa Rica","Region":"Latin America and Caribbean","Rating":7.069},{"Country":"United Kingdom","Region":"Western Europe","Rating":7.064},{"Country":"Czech Republic","Region":"Central and Eastern Europe","Rating":6.965},{"Country":"United States","Region":"North America and ANZ","Rating":6.951},{"Country":"Belgium","Region":"Western Europe","Rating":6.834},{"Country":"France","Region":"Western Europe","Rating":6.69},{"Country":"Bahrain","Region":"Middle East and North Africa","Rating":6.647},{"Country":"Malta","Region":"Western Europe","Rating":6.602},{"Country":"Taiwan Province of China","Region":"East Asia","Rating":6.584},{"Country":"United Arab Emirates","Region":"Middle East and North Africa","Rating":6.561},{"Country":"Saudi Arabia","Region":"Middle East and North Africa","Rating":6.494},{"Country":"Spain","Region":"Western Europe","Rating":6.491},{"Country":"Italy","Region":"Western Europe","Rating":6.483},{"Country":"Slovenia","Region":"Central and Eastern Europe","Rating":6.461},{"Country":"Guatemala","Region":"Latin America and Caribbean","Rating":6.435},{"Country":"Uruguay","Region":"Latin America and Caribbean","Rating":6.431},{"Country":"Singapore","Region":"Southeast Asia","Rating":6.377},{"Country":"Kosovo","Region":"Central and Eastern Europe","Rating":6.372},{"Country":"Slovakia","Region":"Central and Eastern Europe","Rating":6.331},{"Country":"Brazil","Region":"Latin America and Caribbean","Rating":6.33},{"Country":"Mexico","Region":"Latin America and Caribbean","Rating":6.317},{"Country":"Jamaica","Region":"Latin America and Caribbean","Rating":6.309},{"Country":"Lithuania","Region":"Central and Eastern Europe","Rating":6.255},{"Country":"Cyprus","Region":"Western Europe","Rating":6.223},{"Country":"Estonia","Region":"Central and Eastern Europe","Rating":6.189},{"Country":"Panama","Region":"Latin America and Caribbean","Rating":6.18},{"Country":"Uzbekistan","Region":"Commonwealth of Independent States","Rating":6.179},{"Country":"Chile","Region":"Latin America and Caribbean","Rating":6.172},{"Country":"Poland","Region":"Central and Eastern Europe","Rating":6.166},{"Country":"Kazakhstan","Region":"Commonwealth of Independent States","Rating":6.152},{"Country":"Romania","Region":"Central and Eastern Europe","Rating":6.14},{"Country":"Kuwait","Region":"Middle East and North Africa","Rating":6.106},{"Country":"Serbia","Region":"Central and Eastern Europe","Rating":6.078},{"Country":"El Salvador","Region":"Latin America and Caribbean","Rating":6.061},{"Country":"Mauritius","Region":"Sub-Saharan Africa","Rating":6.049},{"Country":"Latvia","Region":"Central and Eastern Europe","Rating":6.032},{"Country":"Colombia","Region":"Latin America and Caribbean","Rating":6.012},{"Country":"Hungary","Region":"Central and Eastern Europe","Rating":5.992},{"Country":"Thailand","Region":"Southeast Asia","Rating":5.985},{"Country":"Nicaragua","Region":"Latin America and Caribbean","Rating":5.972},{"Country":"Japan","Region":"East Asia","Rating":5.94},{"Country":"Argentina","Region":"Latin America and Caribbean","Rating":5.929},{"Country":"Portugal","Region":"Western Europe","Rating":5.929},{"Country":"Honduras","Region":"Latin America and Caribbean","Rating":5.919},{"Country":"Croatia","Region":"Central and Eastern Europe","Rating":5.882},{"Country":"Philippines","Region":"Southeast Asia","Rating":5.88},{"Country":"South Korea","Region":"East Asia","Rating":5.845},{"Country":"Peru","Region":"Latin America and Caribbean","Rating":5.84},{"Country":"Bosnia and Herzegovina","Region":"Central and Eastern Europe","Rating":5.813},{"Country":"Moldova","Region":"Commonwealth of Independent States","Rating":5.766},{"Country":"Ecuador","Region":"Latin America and Caribbean","Rating":5.764},{"Country":"Kyrgyzstan","Region":"Commonwealth of Independent States","Rating":5.744},{"Country":"Greece","Region":"Western Europe","Rating":5.723},{"Country":"Bolivia","Region":"Latin America and Caribbean","Rating":5.716},{"Country":"Mongolia","Region":"East Asia","Rating":5.677},{"Country":"Paraguay","Region":"Latin America and Caribbean","Rating":5.653},{"Country":"Montenegro","Region":"Central and Eastern Europe","Rating":5.581},{"Country":"Dominican Republic","Region":"Latin America and Caribbean","Rating":5.545},{"Country":"North Cyprus","Region":"Western Europe","Rating":5.536},{"Country":"Belarus","Region":"Commonwealth of Independent States","Rating":5.534},{"Country":"Russia","Region":"Commonwealth of Independent States","Rating":5.477},{"Country":"Hong Kong S.A.R. of China","Region":"East Asia","Rating":5.477},{"Country":"Tajikistan","Region":"Commonwealth of Independent States","Rating":5.466},{"Country":"Vietnam","Region":"Southeast Asia","Rating":5.411},{"Country":"Libya","Region":"Middle East and North Africa","Rating":5.41},{"Country":"Malaysia","Region":"Southeast Asia","Rating":5.384},{"Country":"Indonesia","Region":"Southeast Asia","Rating":5.345},{"Country":"Congo (Brazzaville)","Region":"Sub-Saharan Africa","Rating":5.342},{"Country":"China","Region":"East Asia","Rating":5.339},{"Country":"Ivory Coast","Region":"Sub-Saharan Africa","Rating":5.306},{"Country":"Armenia","Region":"Commonwealth of Independent States","Rating":5.283},{"Country":"Nepal","Region":"South Asia","Rating":5.269},{"Country":"Bulgaria","Region":"Central and Eastern Europe","Rating":5.266},{"Country":"Maldives","Region":"South Asia","Rating":5.198},{"Country":"Azerbaijan","Region":"Commonwealth of Independent States","Rating":5.171},{"Country":"Cameroon","Region":"Sub-Saharan Africa","Rating":5.142},{"Country":"Senegal","Region":"Sub-Saharan Africa","Rating":5.132},{"Country":"Albania","Region":"Central and Eastern Europe","Rating":5.117},{"Country":"North Macedonia","Region":"Central and Eastern Europe","Rating":5.101},{"Country":"Ghana","Region":"Sub-Saharan Africa","Rating":5.088},{"Country":"Niger","Region":"Sub-Saharan Africa","Rating":5.074},{"Country":"Turkmenistan","Region":"Commonwealth of Independent States","Rating":5.066},{"Country":"Gambia","Region":"Sub-Saharan Africa","Rating":5.051},{"Country":"Benin","Region":"Sub-Saharan Africa","Rating":5.045},{"Country":"Laos","Region":"Southeast Asia","Rating":5.03},{"Country":"Bangladesh","Region":"South Asia","Rating":5.025},{"Country":"Guinea","Region":"Sub-Saharan Africa","Rating":4.984},{"Country":"South Africa","Region":"Sub-Saharan Africa","Rating":4.956},{"Country":"Turkey","Region":"Middle East and North Africa","Rating":4.948},{"Country":"Pakistan","Region":"South Asia","Rating":4.934},{"Country":"Morocco","Region":"Middle East and North Africa","Rating":4.918},{"Country":"Venezuela","Region":"Latin America and Caribbean","Rating":4.892},{"Country":"Georgia","Region":"Commonwealth of Independent States","Rating":4.891},{"Country":"Algeria","Region":"Middle East and North Africa","Rating":4.887},{"Country":"Ukraine","Region":"Commonwealth of Independent States","Rating":4.875},{"Country":"Iraq","Region":"Middle East and North Africa","Rating":4.854},{"Country":"Gabon","Region":"Sub-Saharan Africa","Rating":4.852},{"Country":"Burkina Faso","Region":"Sub-Saharan Africa","Rating":4.834},{"Country":"Cambodia","Region":"Southeast Asia","Rating":4.83},{"Country":"Mozambique","Region":"Sub-Saharan Africa","Rating":4.794},{"Country":"Nigeria","Region":"Sub-Saharan Africa","Rating":4.759},{"Country":"Mali","Region":"Sub-Saharan Africa","Rating":4.723},{"Country":"Iran","Region":"Middle East and North Africa","Rating":4.721},{"Country":"Uganda","Region":"Sub-Saharan Africa","Rating":4.636},{"Country":"Liberia","Region":"Sub-Saharan Africa","Rating":4.625},{"Country":"Kenya","Region":"Sub-Saharan Africa","Rating":4.607},{"Country":"Tunisia","Region":"Middle East and North Africa","Rating":4.596},{"Country":"Lebanon","Region":"Middle East and North Africa","Rating":4.584},{"Country":"Namibia","Region":"Sub-Saharan Africa","Rating":4.574},{"Country":"Palestinian Territories","Region":"Middle East and North Africa","Rating":4.517},{"Country":"Myanmar","Region":"Southeast Asia","Rating":4.426},{"Country":"Jordan","Region":"Middle East and North Africa","Rating":4.395},{"Country":"Chad","Region":"Sub-Saharan Africa","Rating":4.355},{"Country":"Sri Lanka","Region":"South Asia","Rating":4.325},{"Country":"Swaziland","Region":"Sub-Saharan Africa","Rating":4.308},{"Country":"Comoros","Region":"Sub-Saharan Africa","Rating":4.289},{"Country":"Egypt","Region":"Middle East and North Africa","Rating":4.283},{"Country":"Ethiopia","Region":"Sub-Saharan Africa","Rating":4.275},{"Country":"Mauritania","Region":"Sub-Saharan Africa","Rating":4.227},{"Country":"Madagascar","Region":"Sub-Saharan Africa","Rating":4.208},{"Country":"Togo","Region":"Sub-Saharan Africa","Rating":4.107},{"Country":"Zambia","Region":"Sub-Saharan Africa","Rating":4.073},{"Country":"Sierra Leone","Region":"Sub-Saharan Africa","Rating":3.849},{"Country":"India","Region":"South Asia","Rating":3.819},{"Country":"Burundi","Region":"Sub-Saharan Africa","Rating":3.775},{"Country":"Yemen","Region":"Middle East and North Africa","Rating":3.658},{"Country":"Tanzania","Region":"Sub-Saharan Africa","Rating":3.623},{"Country":"Haiti","Region":"Latin America and Caribbean","Rating":3.615},{"Country":"Malawi","Region":"Sub-Saharan Africa","Rating":3.6},{"Country":"Lesotho","Region":"Sub-Saharan Africa","Rating":3.512},{"Country":"Botswana","Region":"Sub-Saharan Africa","Rating":3.467},{"Country":"Rwanda","Region":"Sub-Saharan Africa","Rating":3.415},{"Country":"Zimbabwe","Region":"Sub-Saharan Africa","Rating":3.145},{"Country":"Afghanistan","Region":"South Asia","Rating":2.523}];
+
+	
+
+
+//alert(json_data);
+var countries_set = [];
+var regions_set = [];
+var countries_non_unique = [];
+var regions_non_unique = [];
+//arrayDataCountry.filter((value, index) => arrayDataCountry.indexOf(value) === index);
+var main_json_data = JSON.parse(JSON.stringify(json_data));
+main_json_data.forEach(function(obj) { 
+  
+
+  countries_non_unique.push(obj.Country);
+  regions_non_unique.push(obj.Region);
+});
+countries_set = countries_non_unique.filter((value, index) => countries_non_unique.indexOf(value) === index);
+regions_set = regions_non_unique.filter((value, index) => regions_non_unique.indexOf(value) === index);
+console.log(countries_set); 
+console.log(regions_set); 
+/*$.ajax({
+                // http:// added
+                url: "http://127.0.0.1:5000/api/data",
+                type: "GET",
+                success: function(data) {
+                    console.log(data);
+                },
+                error: function(data, textStatus, errorThrown) {
+                    //Do Something to handle error
+                    console.log(textStatus);
+                }
+            });*/
+var regionSelectField = d3.select("#region");
+regions_set.forEach(region => {
+        regionSelectField.append("option").text(region)
+    });
+
+
+console.log(countries_to_be_shown);
+console.log(ratings_to_be_shown);
+
+function resetBubbleChart(regionName){
+  d3.select("bubble").html("");
+  countries_to_be_shown = [];
+  ratings_to_be_shown = [];
+  main_json_data.forEach(function(obj) {
+   if (obj.Region == regionName){
+      countries_to_be_shown.push(obj.Country);
+      ratings_to_be_shown.push(obj.Rating);
+   }
+});
+  var countries = ["Germany", "Netherlands", "France", "United Kingdom", 
+             "USA", "Sweden", "Denmark", "India", "Austria", "Italy", "Japan",
+             "Ireland", "Switzerland", "Canada", "Finland", "Czech Republic",
+             "Norway", "Argentina", "Belgium", "Russia", "Spain", "Tunisia",
+             "Hungary", "Portugal", "Australia", "Israel", "China"];
+  var happiness_count = ["66", "10", "36", "91", "356", "17", "8", "1", "6", "6", "18", "1", "24", "8", "1", 
+               "1", "5", "2", "5", "3", "1", "1", "1", "1", "4", "5", "1"];
+  var trace = {
+                        x: countries_to_be_shown,
+                        y: ratings_to_be_shown,
+                        mode: 'markers',
+                        marker: {
+                            size: ratings_to_be_shown.map(d => 25 + d / 2.5),
+                            color: [100, 10, 36, 191, 356, 17, 8, 1, 6, 6, 18, 1, 24, 8, 1, 1, 5, 2, 5, 3, 1, 1, 1, 1, 4, 5, 1],
+                            colorscale: 'Rainbow'
+                        },
+                        text: countries
+                    };
+var trace1 = {
+  x: [1, 2, 3, 4],
+  y: [10, 11, 12, 13],
+  mode: 'markers',
+  marker: {
+    size: [40, 60, 80, 100],
+    color: [100, 10, 36, 191, 356, 17, 8, 1, 6, 6, 18, 1, 24, 8, 1, 1, 5, 2, 5, 3, 1, 1, 1, 1, 4, 5, 1],
+    colorscale: 'Rainbow'
+  }
+};
+
+var data = [trace];
+
+var layout = {
+  title: 'Happiness Ratings',
+  showlegend: false,
+  yaxis:{
+    title:"Happiness Ratings"
+  },
+  margin: {
+                            'l': 100,
+                            'r': 0,
+                            't': 50,
+                            'b': 150
+        }
+};
+
+Plotly.newPlot('bubble', data, layout);
+
+resetGaugeChartFor(countries_to_be_shown[0], ratings_to_be_shown[0]);
+
+
+
+}
+
+function getRatingFro(country){
+  //var rating = 0;
+  main_json_data.forEach(function(obj) {
+   if (obj.Country == country){
+      return obj.Rating;
+   }
+ });
+  //return rating;
+}
+
+function resetGaugeChartFor(country, rating){
+  var data = [
+                        {
+                            domain: { x: [0, 1], y: [0, 1] },
+                            value: rating,
+                            type: 'indicator',
+                            mode: 'gauge+number',
+                            gauge: {
+                                axis: { range: [null, 10.000] },
+                                bar: { color: '#FF575A' },
+                                steps: [
+                                    { range: [0, 1.000], color: '#FFF2F2' },
+                                    { range: [1.000, 2.000], color: '#FFE5E5' },
+                                    { range: [2.000, 3.000], color: '#FFCBCC' },
+                                    { range: [3.000, 4.000], color: '#FFB1B2' },
+                                    { range: [4.000, 5.000], color: '#FF9799' },
+                                    { range: [5.000, 6.000], color: '#FF8A8C' },
+
+                                ]
+                            }
+                        }
+                    ];
+var layout = {
+                        title: {
+                            text: `Happiness Rating for <br>${country}`,
+                            font: {
+                                family: 'Courier New, monospace',
+                                size: 21,
+                                color: "#ac434e"
+                            },
+
+                        }
+                    };
+
+Plotly.newPlot('gauge', data, layout);
+}
+
+
+
+regionSelectField.on("change", change)
+function change() {
+    this.options[this.selectedIndex].value
+    console.log(this.options[this.selectedIndex].value)
+    resetBubbleChart(this.options[this.selectedIndex].value);
+}
+
+
+
+
+
+resetBubbleChart(regions_set[0]);
+
+
+var bubbleChartDiv = document.getElementById('bubble')
+
+bubbleChartDiv.on('plotly_click', function (data) {
+                        data.points.forEach(function (pt) {
+                          resetGaugeChartFor(pt.x, pt.y);
+                          //break;
+                        });
+                      });
+var geojsonLayer;
+var marker;
+var map = L.map('map', { scrollWheelZoom: false }).setView([46, 2], 1);
+var baseMap = L.tileLayer(
+                        'https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}',
+                        {
+                            attribution:
+                                'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
+                            maxZoom: 18,
+                            id: 'mapbox.streets',
+                            accessToken: API_KEY,
+                        }
+                    ).addTo(map);
+var link = './countries_new.geojson';
+
+// Our style object
+var mapStyle = {
+    //color: '#ac434e',
+    //fillColor: '#cf6873',
+    color: '#4aa0af',
+    fillColor: '#4aa0af',
+    fillOpacity: 0.4,
+    weight: 1.5,
+};
+var medalIcon = L.icon({
+                        iconUrl: 'https://upload.wikimedia.org/wikipedia/en/thumb/e/ed/Nobel_Prize.png/440px-Nobel_Prize.png',
+                        iconSize: [35, 35], // size of the icon
+                    });
+
+// Grabbing our GeoJSON data..
+d3.json(link, function (data) {
+    console.log(data)
+
+    // Creating a geoJSON layer with the retrieved data
+    geojsonLayer = L.geoJson(data, {
+
+        // Passing in our style object
+        style: mapStyle,
+        onEachFeature: onEachFeature,
+    })
+    geojsonLayer.addTo(map);
+});
+marker = L.marker([43.64701, -79.39425], { icon: medalIcon });
+
+
+</script>
+</body>
+</html>
