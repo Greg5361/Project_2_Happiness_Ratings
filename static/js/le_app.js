@@ -54,20 +54,12 @@ function resetBarChart(regionName){
   d3.select("bar").html("");
   countries_to_be_shown = [];
   lifexpectancy_to_be_shown = [];
-  //main_json_data.forEach(function(obj) {
   jsonData.forEach(function(obj) {
    if (obj.Region == regionName){
       countries_to_be_shown.push(obj.Country);
       lifexpectancy_to_be_shown.push(obj.lifeexpectancy);
    }
   });
-  var countries = ["Germany", "Netherlands", "France", "United Kingdom", 
-             "USA", "Sweden", "Denmark", "India", "Austria", "Italy", "Japan",
-             "Ireland", "Switzerland", "Canada", "Finland", "Czech Republic",
-             "Norway", "Argentina", "Belgium", "Russia", "Spain", "Tunisia",
-             "Hungary", "Portugal", "Australia", "Israel", "China"];
-  var happiness_count = ["66", "10", "36", "91", "356", "17", "8", "1", "6", "6", "18", "1", "24", "8", "1", 
-               "1", "5", "2", "5", "3", "1", "1", "1", "1", "4", "5", "1"];
   var trace = {
                         x: countries_to_be_shown,
                         y: lifexpectancy_to_be_shown,
@@ -80,16 +72,6 @@ function resetBarChart(regionName){
                         },
                         text: lifexpectancy_to_be_shown
                     };
-  var trace1 = {
-  x: [1, 2, 3, 4],
-  y: [10, 11, 12, 13],
-  mode: 'markers',
-  marker: {
-    size: [40, 60, 80, 100],
-    color: [100, 10, 36, 191, 356, 17, 8, 1, 6, 6, 18, 1, 24, 8, 1, 1, 5, 2, 5, 3, 1, 1, 1, 1, 4, 5, 1],
-    colorscale: 'Rainbow'
-  }
-  };
 
   var data = [trace];
 
@@ -130,15 +112,15 @@ function resetGaugeChartFor(country, rating){
                             type: 'indicator',
                             mode: 'gauge+number',
                             gauge: {
-                                axis: { range: [null, 10.000] },
+                                axis: { range: [null, 100.000] },
                                 bar: { color: '#FF575A' },
                                 steps: [
-                                    { range: [0, 1.000], color: '#FFF2F2' },
-                                    { range: [1.000, 2.000], color: '#FFE5E5' },
-                                    { range: [2.000, 3.000], color: '#FFCBCC' },
-                                    { range: [3.000, 4.000], color: '#FFB1B2' },
-                                    { range: [4.000, 5.000], color: '#FF9799' },
-                                    { range: [5.000, 6.000], color: '#FF8A8C' },
+                                    { range: [0, 30.00], color: '#FFF2F2' },
+                                    { range: [30.00, 40.00], color: '#FFE5E5' },
+                                    { range: [40.00, 50.00], color: '#FFCBCC' },
+                                    { range: [50.00, 60.00], color: '#FFB1B2' },
+                                    { range: [60.00, 70.00], color: '#FF9799' },
+                                    { range: [70.000, 80.000], color: '#FF8A8C' },
 
                                 ]
                             }
@@ -196,13 +178,10 @@ function resetMapForTheReqion(region, country){
     map = L.map('map', { scrollWheelZoom: false }).setView([46, 2], 1);
 
     // getting countries shapes
-    //var link = '/static/data/nobelCountries.geojson';
     var link = '/static/data/countries_new.geojson';
 
     // Our style object
     var mapStyle = {
-        //color: '#ac434e',
-        //fillColor: '#cf6873',
         color: '#4aa0af',
         fillColor: '#4aa0af',
         fillOpacity: 0.4,
@@ -230,7 +209,6 @@ function setupMapData(data){
     var dataToBeShown = [] ;
     countries_to_be_shown.forEach(function(country, index){
         data.features.forEach(function(feature) {
-          //console.log(feature);
           var countryToBeChecked;
           if (country == "United States"){
             countryToBeChecked = "United States of America"
@@ -245,17 +223,8 @@ function setupMapData(data){
           }
       });
     });
-    
-    /*geojsonLayer = L.geoJson(dataToBeShown, {
-
-        // Passing in our style object
-        style: mapStyle,
-        onEachFeature: onEachFeature,
-    })
-    geojsonLayer.addTo(map);*/
     titleLayer = L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token=' + API_KEY, {
                  id: 'mapbox/light-v9',
-                 //attribution: ...,
                  tileSize: 512,
                  zoomOffset: -1
                 }).addTo(map);
@@ -263,13 +232,7 @@ function setupMapData(data){
                 style: style,
                 onEachFeature: onEachFeature
             }).addTo(map);
-    var countryGeoJson = L.geojson(dataToBeShown[0], {
-                style: style,
-                onEachFeature: onEachFeature
-            })
-    //map.fitBounds(geojson.getBounds());
-    map.fitBounds(dataToBeShown[0].geometry.getBounds());
-    //marker = L.marker([43.64701, -79.39425], { icon: medalIcon });
+    map.fitBounds(geojson.getBounds());
     info = L.control();
 
     info.onAdd = function (map) {
@@ -310,7 +273,6 @@ function setupMapData(data){
 function onEachFeature(feature, layer) {
                         // does this feature have a property named popupContent?
                         if (feature.properties) {
-                            layer.bindPopup(feature.properties.ADMIN);
                             layer.on({
                                 mouseover: highlightFeature,
                                 mouseout: resetHighlight,

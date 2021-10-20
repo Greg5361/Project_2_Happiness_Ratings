@@ -61,13 +61,6 @@ function resetBubbleChart(regionName){
       ratings_to_be_shown.push(obj.Rating);
    }
   });
-  var countries = ["Germany", "Netherlands", "France", "United Kingdom", 
-             "USA", "Sweden", "Denmark", "India", "Austria", "Italy", "Japan",
-             "Ireland", "Switzerland", "Canada", "Finland", "Czech Republic",
-             "Norway", "Argentina", "Belgium", "Russia", "Spain", "Tunisia",
-             "Hungary", "Portugal", "Australia", "Israel", "China"];
-  var happiness_count = ["66", "10", "36", "91", "356", "17", "8", "1", "6", "6", "18", "1", "24", "8", "1", 
-               "1", "5", "2", "5", "3", "1", "1", "1", "1", "4", "5", "1"];
   var trace = {
                         x: countries_to_be_shown,
                         y: ratings_to_be_shown,
@@ -79,16 +72,6 @@ function resetBubbleChart(regionName){
                         },
                         text: countries_to_be_shown
                     };
-  var trace1 = {
-  x: [1, 2, 3, 4],
-  y: [10, 11, 12, 13],
-  mode: 'markers',
-  marker: {
-    size: [40, 60, 80, 100],
-    color: [100, 10, 36, 191, 356, 17, 8, 1, 6, 6, 18, 1, 24, 8, 1, 1, 5, 2, 5, 3, 1, 1, 1, 1, 4, 5, 1],
-    colorscale: 'Rainbow'
-  }
-  };
 
   var data = [trace];
 
@@ -193,24 +176,15 @@ function resetMapForTheReqion(region, country){
 
     // initializing a new map
     map = L.map('map', { scrollWheelZoom: false }).setView([46, 2], 1);
-
-    // getting countries shapes
-    //var link = '/static/data/nobelCountries.geojson';
     var link = '/static/data/countries_new.geojson';
 
     // Our style object
     var mapStyle = {
-        //color: '#ac434e',
-        //fillColor: '#cf6873',
         color: '#4aa0af',
         fillColor: '#4aa0af',
         fillOpacity: 0.4,
         weight: 1.5,
     };
-    var medalIcon = L.icon({
-                            iconUrl: 'https://upload.wikimedia.org/wikipedia/en/thumb/e/ed/Nobel_Prize.png/440px-Nobel_Prize.png',
-                            iconSize: [35, 35], // size of the icon
-                        });
     fetch(link)
     .then(response => response.json())
     .then(data => {
@@ -223,8 +197,6 @@ function resetMapForTheReqion(region, country){
     });
 }
 
-
-
 function size(countOfCountry) {
                         return countOfCountry.map(d => 25 + d / 2.5)
 }
@@ -233,7 +205,6 @@ function setupMapData(data){
     var dataToBeShown = [] ;
     countries_to_be_shown.forEach(function(country, index){
         data.features.forEach(function(feature) {
-          //console.log(feature);
           var countryToBeChecked;
           if (country == "United States"){
             countryToBeChecked = "United States of America"
@@ -248,17 +219,8 @@ function setupMapData(data){
           }
       });
     });
-    
-    /*geojsonLayer = L.geoJson(dataToBeShown, {
-
-        // Passing in our style object
-        style: mapStyle,
-        onEachFeature: onEachFeature,
-    })
-    geojsonLayer.addTo(map);*/
     titleLayer = L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token=' + API_KEY, {
                  id: 'mapbox/light-v9',
-                 //attribution: ...,
                  tileSize: 512,
                  zoomOffset: -1
                 }).addTo(map);
@@ -267,7 +229,6 @@ function setupMapData(data){
                 onEachFeature: onEachFeature
             }).addTo(map);
     map.fitBounds(geojson.getBounds());
-    //marker = L.marker([43.64701, -79.39425], { icon: medalIcon });
     info = L.control();
 
     info.onAdd = function (map) {
@@ -308,7 +269,6 @@ function setupMapData(data){
 function onEachFeature(feature, layer) {
                         // does this feature have a property named popupContent?
                         if (feature.properties) {
-                            layer.bindPopup(feature.properties.ADMIN);
                             layer.on({
                                 mouseover: highlightFeature,
                                 mouseout: resetHighlight,

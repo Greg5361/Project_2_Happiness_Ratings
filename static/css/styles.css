@@ -88,6 +88,15 @@ body{
   }
 }
 
+@media (min-width: 500px) {
+.hero h1 {
+    animation: smaller-title 1.2s forwards linear;
+  }
+.herole h1 {
+    animation: smaller-title 1.2s forwards linear;
+  }
+}
+
 #map {
   height: 350px;
   width: 100%;
@@ -151,3 +160,55 @@ body{
 .ml1 .line1 { top: 0; }
 .ml1 .line2 { bottom: 0; }
 
+
+/* The styles for the parallax */
+.hero {
+  position: relative;
+  height: 550px;
+  padding: 20px;
+  margin: 0;
+  background: black;
+  background-image: url("images/happiness_splash.jpg");
+  background-attachment: fixed;
+  background-position: bottom center;
+  background-size: cover;
+}
+
+.hero h1 {
+  margin-top: 200px;
+  font-size: 0.1rem;
+  animation: title 1.2s forwards linear;
+}
+
+.hero p {
+  font-size: 2rem;
+  opacity: 0;
+  animation: subtitle 1.2s forwards linear;
+  animation-delay: 1.2s;
+}
+
+/* The styles for the parallax */
+.herole {
+  position: relative;
+  height: 550px;
+  padding: 20px;
+  margin: 0;
+  background: black;
+  background-image: url("images/life1.jpeg");
+  background-attachment: fixed;
+  background-position: bottom center;
+  background-size: cover;
+}
+
+.herole h1 {
+  margin-top: 200px;
+  font-size: 0.1rem;
+  animation: title 1.2s forwards linear;
+}
+
+.herole p {
+  font-size: 2rem;
+  opacity: 0;
+  animation: subtitle 1.2s forwards linear;
+  animation-delay: 1.2s;
+}

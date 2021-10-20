@@ -1,43 +1,51 @@
 from flask import Flask, json, redirect, jsonify, render_template
 import pandas as pd
-from splinter import Browser
-from webdriver_manager.chrome import ChromeDriverManager
-import os
-import requests
-from bs4 import BeautifulSoup as bs
 
 
+#Initiate Flask app
 app = Flask(__name__)
 
 
+#Handle the default route and render the index.html
 @app.route('/')
 def home():
     return render_template('index.html')
 
+#Handle the life expectancy route and render the lifeexpectancy.html
 @app.route('/lifeexpectancy/')
 def lifeexpectancy():
     return render_template('lifeexpectancy.html')
 
+#Handle the api/data route and return the required data in JSON format
 @app.route('/api/data')
 def data():
+	#Read the data(CSV File).
 	df = pd.read_csv('Resources/world-happiness-report-2021.csv')
-	df_filtered = df[["Country name", "Regional indicator", "Ladder score"]]
-	df_filtered_renamed = df_filtered.rename(columns={'Country name': 'Country', 'Regional indicator': 'Region', 'Ladder score': 'Rating'})
-	df_json = df_filtered.to_json(orient = 'records' )
-   	#return df_filtered.to_json(orient = 'records' )
-	#return json.dumps(df_json)
-	return df_filtered_renamed.to_json(orient='records')
+	# Make a Dataframe with the required columns.
+	df_happiness = df[["Country name", "Regional indicator", "Ladder score"]]
+	# Rename the columns as required.
+	df_happiness_renamed = df_happiness.rename(columns={'Country name': 'Country', 'Regional indicator': 'Region', 'Ladder score': 'Rating'})
+	
+	#Convert the dataframe to JSON and return it.
+	happinessRatingsJSON = df_happiness_renamed.to_json(orient = 'records' )
+	return happinessRatingsJSON
 
+#Handle the /api/ledata route and return the required data in JSON format
 @app.route('/api/ledata')
 def leData():
+	#Read the data(CSV File).
 	df = pd.read_csv('Resources/world-happiness-report-2021.csv')
-	df_filtered = df[["Country name", "Regional indicator", "Healthy life expectancy"]]
-	df_filtered_renamed = df_filtered.rename(columns={'Country name': 'Country', 'Regional indicator': 'Region', 'Healthy life expectancy': 'lifeexpectancy'})
-	df_json = df_filtered.to_json(orient = 'records' )
-   	#return df_filtered.to_json(orient = 'records' )
-	#return json.dumps(df_json)
-	return df_filtered_renamed.to_json(orient='records')
+	# Make a Dataframe with the required columns.
+	df_life_expectancy = df[["Country name", "Regional indicator", "Healthy life expectancy"]]
+	# Rename the columns as required.
+	df_life_expectancy_renamed = df_life_expectancy.rename(columns={'Country name': 'Country', 'Regional indicator': 'Region', 'Healthy life expectancy': 'lifeexpectancy'})
+	
+	#Convert the dataframe to JSON and return it.
+	lifeExpectancyJSON = df_life_expectancy_renamed.to_json(orient = 'records' )
+	return lifeExpectancyJSON
 
 
+#Run the flask server in Production mode. 
+#Tried running the server in debug mode and that never works
 if __name__ == '__main__':
     app.run(debug=False)

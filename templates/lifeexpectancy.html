@@ -2,179 +2,169 @@
 <html lang="en">
 <head>
 	<meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-<script src='https://cdn.plot.ly/plotly-2.4.2.min.js'></script>
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/css/bootstrap.min.css" rel="stylesheet"
-        integrity="sha384-F3w7mX95PdgyTmZZMECAngseQB83DfGTowi0iMjiWaeVhAn4FJkqJByhZMI3AhiU" crossorigin="anonymous">
-        <!-- Leaflet JS & CSS -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.6.0/dist/leaflet.css"
-    integrity="sha512-xwE/Az9zrjBIphAcBb3F6JVqxf46+CDLwfLMHloNu6KEQCAWi6HcDUbeOfBIptF7tcCzusKFjFw2yuvEpDL9wQ=="
-    crossorigin=""/>
-    <script src="https://unpkg.com/leaflet@1.6.0/dist/leaflet.js"
-    integrity="sha512-gZwIG9x3wUXg2hdXF6+rVkLF/0Vi9U8D2Ntg4Ga5I5BZpVkVxlJWbSQtXPSiUTtC0TjtGOmxa1AJPuV0CPthew=="
-    crossorigin=""></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <script src='https://cdn.plot.ly/plotly-2.4.2.min.js'></script>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-F3w7mX95PdgyTmZZMECAngseQB83DfGTowi0iMjiWaeVhAn4FJkqJByhZMI3AhiU" crossorigin="anonymous">
+  <!-- Leaflet JS & CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.6.0/dist/leaflet.css"
+  integrity="sha512-xwE/Az9zrjBIphAcBb3F6JVqxf46+CDLwfLMHloNu6KEQCAWi6HcDUbeOfBIptF7tcCzusKFjFw2yuvEpDL9wQ=="
+  crossorigin=""/>
+  <script src="https://unpkg.com/leaflet@1.6.0/dist/leaflet.js"
+  integrity="sha512-gZwIG9x3wUXg2hdXF6+rVkLF/0Vi9U8D2Ntg4Ga5I5BZpVkVxlJWbSQtXPSiUTtC0TjtGOmxa1AJPuV0CPthew=="
+  crossorigin=""></script>
 
-    <!-- Load Esri Leaflet from CDN -->
-    <script src="https://unpkg.com/esri-leaflet@2.3.3/dist/esri-leaflet.js"
-    integrity="sha512-cMQ5e58BDuu1pr9BQ/eGRn6HaR6Olh0ofcHFWe5XesdCITVuSBiBZZbhCijBe5ya238f/zMMRYIMIIg1jxv4sQ=="
-    crossorigin=""></script>
+  <!-- Load Esri Leaflet from CDN -->
+  <script src="https://unpkg.com/esri-leaflet@2.3.3/dist/esri-leaflet.js"
+  integrity="sha512-cMQ5e58BDuu1pr9BQ/eGRn6HaR6Olh0ofcHFWe5XesdCITVuSBiBZZbhCijBe5ya238f/zMMRYIMIIg1jxv4sQ=="
+  crossorigin=""></script>
 
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" integrity="sha512-1ycn6IcaQQ40/MKBW2W4Rhis/DbILU74C1vSrLJxCq57o941Ym01SwNsOMqvEBFlcgUa6xLiPY/NS5R+E6ztJQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-<link rel="stylesheet" href="/static/css/styles.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" integrity="sha512-1ycn6IcaQQ40/MKBW2W4Rhis/DbILU74C1vSrLJxCq57o941Ym01SwNsOMqvEBFlcgUa6xLiPY/NS5R+E6ztJQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <link rel="stylesheet" href="/static/css/styles.css">
 </head>
 <body>
 	<nav class="navbar navbar-expand-lg navbar-light bg-light">
-        <div class="container-fluid">
-          <a class="navbar-brand bg-info p-2 rounded text-white fw-bold fs-4" href="#">Life Expectancy</a>
-          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-          </button>
-          <div class="collapse navbar-collapse" id="navbarSupportedContent">
-            <ul class="navbar-nav ms-auto mb-2 mb-lg-0">   
-                  <li class="nav-item">
-                    <a class="nav-link active" aria-current="page" href="/">Happiness Ratings</a>
-                  </li>   
-            </ul>
-          </div>
-        </div>
-      </nav>
-       <div class="container-fluid myContainer-fluid">
-        <form>
-                  <div class="form-group">
-                    <ul class="list-group" id="filters">
-                      <li class="filter list-group-item">
-                        
-                        <!--<input class="form-control" id="datetime" type="text" placeholder="D/M/YYYY">
-                        <input class="form-control" id="city" type="text" placeholder="">-->
-                        <label for="region">Select a Region</label>
-                        <select id = "region">
-                        </select>
-                      </li>
-                    </ul>
-                  </div>
-        </form>
-        <div class="row myRow row-grid top-buffer">
-            <div class="col-md-12 me-12 myContainer">
-                <h3 id="chartHeaderLabel">World Life Expectancy bar chart</h3>
-                <hr>
-	            <div class="row">
-  			        <!-- bubble plot -->
-  			        <div class="col-sm-12 col-md-12 col-lg-12">
-  			          <div id="bar"></div>
-  			        </div>
-  	        
-  			        <!-- gauge plot -->
-  			        <div class="col-sm-12 col-md-5 col-lg-5">
-  			          <div id="gauge"></div>
-  			        </div>
+    <div class="container-fluid">
+      <a class="navbar-brand bg-info p-2 rounded text-white fw-bold fs-4" href="#">Life Expectancy</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav ms-auto mb-2 mb-lg-0">   
+              <li class="nav-item">
+                <a class="nav-link active" aria-current="page" href="/">Happiness Ratings</a>
+              </li>   
+        </ul>
+      </div>
+    </div>
+  </nav>
+  <div class="herole text-center">
+    <!-- Div with the top image -->         
+  </div>
+  <div class="container-fluid myContainer-fluid">
+    <form>
+      <div class="form-group">
+        <ul class="list-group" id="filters">
+          <li class="filter list-group-item">
+            <label for="region">Select a Region</label>
+            <select id = "region">
+            </select>
+          </li>
+        </ul>
+      </div>
+    </form>
+    <div class="row myRow row-grid top-buffer">
+      <div class="col-md-12 me-12 myContainer">
+        <h3 id="chartHeaderLabel">World Life Expectancy bubble chart</h3>
+        <hr>
+	      <div class="row">
+	        <!-- bubble plot -->
+	        <div class="col-sm-12 col-md-12 col-lg-12">
+	          <div id="bar"></div>
+	        </div>
+      
+	        <!-- gauge plot -->
+	        <div class="col-sm-12 col-md-5 col-lg-5">
+	          <div id="gauge"></div>
+	        </div>
 
-  			        <!-- map div -->
-  			        <div class="col-sm-12 col-md-12 col-lg-7">
-  			          <p class="mapTitle"></p>
-  			          <div id="map"></div>
-  			       </div>
-
-               <div class="col-sm-12 col-md-12 col-lg-12">
-                  <div id="anime">
-                    <h1 class="ml1">
-                    <span class="text-wrapper">
-                      <span class="line line1"></span>
-                      <span class="letters">Live Longer!</span>
-                      <span class="line line2"></span>
-                    </span>
-                  </h1>
-                  </div>
-                </div>
-	      		</div>
+	        <!-- map div -->
+	        <div class="col-sm-12 col-md-12 col-lg-7">
+	          <p class="mapTitle"></p>
+	          <div id="map"></div>
+	        </div>
+          <!-- Bottom Text animation div -->
+          <div class="col-sm-12 col-md-12 col-lg-12">
+            <div id="anime">
+              <h1 class="ml1">
+                <span class="text-wrapper">
+                <span class="line line1"></span>
+                <span class="letters">Live Longer!</span>
+                <span class="line line2"></span>
+              </h1>
             </div>
-            
+          </div>
+	      </div>
+      </div>
+    </div>
+  </div>
+    
+  <footer class="bg-light text-center text-lg-start">
+    <!-- Grid container -->
+    <div class="container p-4">
+      <!--Grid row-->
+      <div class="row">
+        <!--Grid column-->
+        <div class="col-lg-6 col-md-12 mb-4 mb-md-0">
+          <h5 class="text-uppercase">Hina Abidi</h5>
+
+          <section class="mb-4">
+
+        <!-- Linkedin -->
+        <a
+          class="btn btn-primary btn-floating m-1"
+          style="background-color: #0082ca;"
+          href="https://www.linkedin.com/in/hina-abidi-42a390214/"
+          role="button"
+          target="_blank"
+          ><i class="fab fa-linkedin-in"></i
+        ></a>
+        <!-- Github -->
+        <a
+          class="btn btn-primary btn-floating m-1"
+          style="background-color: #333333;"
+          href="https://github.com/hinaabidi"
+          role="button"
+          target="_blank"
+          ><i class="fab fa-github"></i
+        ></a>
+      </section>
+      <!-- Section: Social media -->
+          <div class="container p-4 pb-0">
+      
+    </div>
         </div>
+        <!--Grid column-->
 
-    </div>
-    
-<footer class="bg-light text-center text-lg-start">
-  <!-- Grid container -->
-  <div class="container p-4">
-    <!--Grid row-->
-    <div class="row">
-      <!--Grid column-->
-      <div class="col-lg-6 col-md-12 mb-4 mb-md-0">
-        <h5 class="text-uppercase">Hina Abidi</h5>
+        <!--Grid column-->
+        <div class="col-lg-6 col-md-12 mb-4 mb-md-0">
+          <h5 class="text-uppercase">Greg Andres</h5>
 
-        <section class="mb-4">
+          <section class="mb-4">
 
-      <!-- Linkedin -->
-      <a
-        class="btn btn-primary btn-floating m-1"
-        style="background-color: #0082ca;"
-        href="https://www.linkedin.com/in/hina-abidi-42a390214/"
-        role="button"
-        target="_blank"
-        ><i class="fab fa-linkedin-in"></i
-      ></a>
-      <!-- Github -->
-      <a
-        class="btn btn-primary btn-floating m-1"
-        style="background-color: #333333;"
-        href="https://github.com/hinaabidi"
-        role="button"
-        target="_blank"
-        ><i class="fab fa-github"></i
-      ></a>
-    </section>
-    <!-- Section: Social media -->
-        <div class="container p-4 pb-0">
-    
-  </div>
+        <!-- Linkedin -->
+        <a
+          class="btn btn-primary btn-floating m-1"
+          style="background-color: #0082ca;"
+          href="https://www.linkedin.com/in/gregory-andres-46914176"
+          role="button"
+          target="_blank"
+          ><i class="fab fa-linkedin-in"></i
+        ></a>
+        <!-- Github -->
+        <a
+          class="btn btn-primary btn-floating m-1"
+          style="background-color: #333333;"
+          href="https://github.com/Greg5361"
+          role="button"
+          target="_blank"
+          ><i class="fab fa-github"></i
+        ></a>
+      </section>
+      <!-- Section: Social media -->
+        </div>
+        <!--Grid column-->
       </div>
-      <!--Grid column-->
-
-      <!--Grid column-->
-      <div class="col-lg-6 col-md-12 mb-4 mb-md-0">
-        <h5 class="text-uppercase">Greg Andres</h5>
-
-        <section class="mb-4">
-
-      <!-- Linkedin -->
-      <a
-        class="btn btn-primary btn-floating m-1"
-        style="background-color: #0082ca;"
-        href="https://www.linkedin.com/in/hina-abidi-42a390214/"
-        role="button"
-        target="_blank"
-        ><i class="fab fa-linkedin-in"></i
-      ></a>
-      <!-- Github -->
-      <a
-        class="btn btn-primary btn-floating m-1"
-        style="background-color: #333333;"
-        href="https://github.com/hinaabidi"
-        role="button"
-        target="_blank"
-        ><i class="fab fa-github"></i
-      ></a>
-    </section>
-    <!-- Section: Social media -->
-      </div>
-      <!--Grid column-->
+      <!--Grid row-->
     </div>
-    <!--Grid row-->
-  </div>
-  <!-- Grid container -->
-
-  <!-- Copyright -->
-  <div class="text-center p-3" style="background-color: rgba(0, 0, 0, 0.2);">
-    <!--© 2020 Copyright:
-    <a class="text-dark" href="https://mdbootstrap.com/">MDBootstrap.com</a>-->
-  </div>
-  <!-- Copyright -->
-</footer>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/2.0.2/anime.min.js"></script>
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-/bQdsTh/da6pkI1MST/rWKFNjaCP5gBSY4sEBT38Q/9RBh9AH40zEOg7Hlq2THRZ" crossorigin="anonymous"></script>
-<script src="https://d3js.org/d3.v5.min.js"></script>
-<script src="/static/js/config.js"></script>
-<script src="/static/js/le_app.js"></script>
+    <!-- Grid container -->
+  </footer>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/2.0.2/anime.min.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-/bQdsTh/da6pkI1MST/rWKFNjaCP5gBSY4sEBT38Q/9RBh9AH40zEOg7Hlq2THRZ" crossorigin="anonymous"></script>
+  <script src="https://d3js.org/d3.v5.min.js"></script>
+  <script src="/static/js/config.js"></script>
+  <script src="/static/js/le_app.js"></script>
 
 </body>
 </html>
